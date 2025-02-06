@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { createProduct } from '../../core/services/productFetch'
 
@@ -12,6 +12,26 @@ export const CreateDonutComponent = () => {
             [fieldName]: fieldValue
         })
     }
+
+     // Manejar la subida de archivos y conversión a Base64
+     const handleFileUpload = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setNewProduct((newProduct) => ({
+                    ...newProduct,
+                    imagen: reader.result, // Guarda la imagen en base64
+                }));
+            };
+            reader.readAsDataURL(file); // Convierte el archivo en base64
+        }
+    };
+
+    // Verificar cambios en el estado del producto
+    useEffect(() => {
+        console.log("Producto actualizado:", newProduct);
+    }, [newProduct]);
 
     const goHomePage = () => {
         navigate('/')
@@ -68,8 +88,13 @@ export const CreateDonutComponent = () => {
                     <div style={{ display: 'flex', flexDirection: 'row', textAlign: 'start', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
                         <span style={{ fontWeight: 'bold' }}>Imagen: </span>
                         <input type="text" style={{ width: '63ch' }} placeholder='Introduce un URL de una imagen...' name='imagen' onChange={(e) => newDonutHandler(e.target.name, e.target.value)} />
+                        <input type="file" accept="image/*" name='imagen' onChange={handleFileUpload} />
                     </div>
                 </div>
+                {/* Mostrar imagen en vista previa si existe */}
+                {newProduct?.imagen && (
+                        <img src={newProduct.imagen} alt="Vista previa" style={{ width: "200px", marginTop: "10px" }} />
+                    )}
             </div>
             <div style={{ marginBottom: 40 }}>
                 <button style={{ marginLeft: 30 }} onClick={createHandler}>Crear donut</button>
